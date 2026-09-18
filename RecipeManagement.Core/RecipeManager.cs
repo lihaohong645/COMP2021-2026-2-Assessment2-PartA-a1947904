@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RecipeManagement.Core;
 
 /// <summary>
-/// Implements the Part A recipe-management collections.
+/// Implements the Part A recipe management collections.
 /// </summary>
 public sealed class RecipeManager : IRecipeManager
 {
@@ -14,6 +14,12 @@ public sealed class RecipeManager : IRecipeManager
     private readonly Stack<int> _removedRecipes = new();
     private readonly Queue<string> _pendingInstructions = new();
 
+    private static bool HasValidIdentity(Recipe recipe)
+    {
+        return recipe.Id > 0 &&
+               !string.IsNullOrWhiteSpace(recipe.Title);
+    }
+
     public RecipeManager(IEnumerable<Recipe> recipes)
     {
         ArgumentNullException.ThrowIfNull(recipes);
@@ -21,16 +27,13 @@ public sealed class RecipeManager : IRecipeManager
         foreach (Recipe recipe in recipes)
         {
             if (recipe is null ||
-                recipe.Id <= 0 ||
-                string.IsNullOrWhiteSpace(recipe.Title) ||
-                _recipes.ContainsKey(recipe.Id))
+                !HasValidIdentity(recipe) ||
+                !_recipes.TryAdd(recipe.Id, recipe))
             {
                 throw new ArgumentException(
                     "Recipes must have a positive unique ID and a non-blank title.",
                     nameof(recipes));
             }
-
-            _recipes.Add(recipe.Id, recipe);
         }
     }
 
@@ -48,15 +51,12 @@ public sealed class RecipeManager : IRecipeManager
     {
         ArgumentNullException.ThrowIfNull(recipe);
 
-        if (recipe.Id <= 0 ||
-            string.IsNullOrWhiteSpace(recipe.Title) ||
-            _recipes.ContainsKey(recipe.Id))
+        if (!HasValidIdentity(recipe))
         {
             return false;
         }
 
-        _recipes.Add(recipe.Id, recipe);
-        return true;
+        return _recipes.TryAdd(recipe.Id, recipe);
     }
 
     public Recipe? FindRecipe(int recipeId)
