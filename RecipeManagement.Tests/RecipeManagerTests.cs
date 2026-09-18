@@ -5,7 +5,7 @@ using RecipeManagement.Core;
 namespace RecipeManagement.Tests;
 
 /// <summary>
-/// Unit tests for the Part A recipe-management collections.
+/// Unit tests for the Part A recipe management collections.
 /// </summary>
 public sealed class RecipeManagerTests
 {
@@ -293,6 +293,40 @@ public sealed class RecipeManagerTests
         Assert.Null(manager.PeekNextInstruction());
         Assert.Null(manager.CompleteNextInstruction());
         Assert.Equal(0, manager.PendingInstructionCount);
+    }
+
+    [Fact]
+    public void GetShoppingList_ReturnsIndependentSnapshot()
+    {
+        var manager = CreateManager();
+
+        manager.AddIngredientsToShoppingList(10);
+        IReadOnlyList<string> snapshot = manager.GetShoppingList();
+
+        manager.ClearShoppingList();
+
+        Assert.Equal(
+            new[] { "1 apple", "2 eggs" },
+            snapshot);
+
+        Assert.Empty(manager.GetShoppingList());
+    }
+
+    [Fact]
+    public void GetCookingPlan_ReturnsIndependentSnapshot()
+    {
+        var manager = CreateManager();
+
+        manager.AddRecipeToCookingPlan(10);
+        IReadOnlyList<int> snapshot = manager.GetCookingPlan();
+
+        manager.AddRecipeToCookingPlan(20);
+
+        Assert.Equal(new[] { 10 }, snapshot);
+
+        Assert.Equal(
+            new[] { 10, 20 },
+            manager.GetCookingPlan());
     }
 
     private static RecipeManager CreateManager()
