@@ -83,6 +83,26 @@ public sealed class RecipeManagerTests
             () => manager.AddRecipe(null!));
     }
 
+    [Theory]
+    [InlineData(0, "Recipe C")]
+    [InlineData(-1, "Recipe C")]
+    [InlineData(30, "")]
+    [InlineData(30, "   ")]
+    public void AddRecipe_RejectsInvalidIdentity(int id, string title)
+    {
+        var manager = CreateManager();
+
+        var invalidRecipe = new Recipe
+        {
+            Id = id,
+            Title = title
+        };
+
+        Assert.False(manager.AddRecipe(invalidRecipe));
+        Assert.Equal(2, manager.RecipeCount);
+        Assert.Null(manager.FindRecipe(id));
+    }
+
     [Fact]
     public void FindRecipe_ReturnsNullForMissingId()
     {
