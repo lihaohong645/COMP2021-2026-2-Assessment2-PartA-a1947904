@@ -31,18 +31,34 @@ public sealed class RecipeManagerTests
     {
         var duplicateRecipes = new[]
         {
-            new Recipe { Id = 10, Title = "Recipe A" },
-            new Recipe { Id = 10, Title = "Recipe B" }
+            new Recipe
+            {
+                Id = 10,
+                Title = "Recipe A"
+            },
+            new Recipe
+            {
+                Id = 10,
+                Title = "Recipe B"
+            }
         };
 
         var invalidIdRecipes = new[]
         {
-            new Recipe { Id = 0, Title = "Recipe A" }
+            new Recipe
+            {
+                Id = 0,
+                Title = "Recipe A"
+            }
         };
 
         var blankTitleRecipes = new[]
         {
-            new Recipe { Id = 10, Title = "   " }
+            new Recipe
+            {
+                Id = 10,
+                Title = "   "
+            }
         };
 
         Assert.Throws<ArgumentException>(
@@ -68,7 +84,9 @@ public sealed class RecipeManagerTests
 
         Assert.True(manager.AddRecipe(recipe));
         Assert.Equal(3, manager.RecipeCount);
-        Assert.Equal("Recipe C", manager.FindRecipe(30)?.Title);
+        Assert.Equal(
+            "Recipe C",
+            manager.FindRecipe(30)?.Title);
 
         Assert.False(manager.AddRecipe(recipe));
         Assert.Equal(3, manager.RecipeCount);
@@ -88,7 +106,9 @@ public sealed class RecipeManagerTests
     [InlineData(-1, "Recipe C")]
     [InlineData(30, "")]
     [InlineData(30, "   ")]
-    public void AddRecipe_RejectsInvalidIdentity(int id, string title)
+    public void AddRecipe_RejectsInvalidIdentity(
+        int id,
+        string title)
     {
         var manager = CreateManager();
 
@@ -129,7 +149,9 @@ public sealed class RecipeManagerTests
     {
         var manager = CreateManager();
 
-        Assert.True(manager.AddRecipeToCookingPlan(10));
+        Assert.True(
+            manager.AddRecipeToCookingPlan(10));
+
         Assert.False(manager.RemoveRecipe(10));
 
         Assert.NotNull(manager.FindRecipe(10));
@@ -141,13 +163,18 @@ public sealed class RecipeManagerTests
     {
         var manager = CreateManager();
 
-        int numberAdded = manager.AddIngredientsToShoppingList(10);
+        int numberAdded =
+            manager.AddIngredientsToShoppingList(10);
 
         Assert.Equal(2, numberAdded);
         Assert.Equal(2, manager.ShoppingItemCount);
 
         Assert.Equal(
-            new[] { "1 apple", "2 eggs" },
+            new[]
+            {
+                "1 apple",
+                "2 eggs"
+            },
             manager.GetShoppingList());
     }
 
@@ -156,7 +183,8 @@ public sealed class RecipeManagerTests
     {
         var manager = CreateManager();
 
-        int numberAdded = manager.AddIngredientsToShoppingList(999);
+        int numberAdded =
+            manager.AddIngredientsToShoppingList(999);
 
         Assert.Equal(0, numberAdded);
         Assert.Equal(0, manager.ShoppingItemCount);
@@ -180,13 +208,23 @@ public sealed class RecipeManagerTests
     {
         var manager = CreateManager();
 
-        Assert.True(manager.AddRecipeToCookingPlan(10));
-        Assert.True(manager.AddRecipeToCookingPlan(20));
-        Assert.False(manager.AddRecipeToCookingPlan(10));
-        Assert.False(manager.AddRecipeToCookingPlan(999));
+        Assert.True(
+            manager.AddRecipeToCookingPlan(10));
+
+        Assert.True(
+            manager.AddRecipeToCookingPlan(20));
+
+        Assert.False(
+            manager.AddRecipeToCookingPlan(10));
+
+        Assert.False(
+            manager.AddRecipeToCookingPlan(999));
 
         Assert.Equal(2, manager.CookingPlanCount);
-        Assert.Equal(new[] { 10, 20 }, manager.GetCookingPlan());
+
+        Assert.Equal(
+            new[] { 10, 20 },
+            manager.GetCookingPlan());
     }
 
     [Fact]
@@ -196,10 +234,14 @@ public sealed class RecipeManagerTests
 
         manager.AddRecipeToCookingPlan(10);
 
-        Assert.False(manager.RemoveRecipeFromCookingPlan(20));
+        Assert.False(
+            manager.RemoveRecipeFromCookingPlan(20));
+
         Assert.Equal(0, manager.RemovedRecipeCount);
 
-        Assert.True(manager.RemoveRecipeFromCookingPlan(10));
+        Assert.True(
+            manager.RemoveRecipeFromCookingPlan(10));
+
         Assert.Equal(1, manager.RemovedRecipeCount);
         Assert.Equal(10, manager.PeekLastRemovedRecipe());
         Assert.Empty(manager.GetCookingPlan());
@@ -216,13 +258,27 @@ public sealed class RecipeManagerTests
         manager.RemoveRecipeFromCookingPlan(10);
         manager.RemoveRecipeFromCookingPlan(20);
 
-        Assert.Equal(20, manager.PeekLastRemovedRecipe());
-        Assert.True(manager.RestoreLastRemovedRecipe());
-        Assert.Equal(new[] { 20 }, manager.GetCookingPlan());
+        Assert.Equal(
+            20,
+            manager.PeekLastRemovedRecipe());
 
-        Assert.Equal(10, manager.PeekLastRemovedRecipe());
-        Assert.True(manager.RestoreLastRemovedRecipe());
-        Assert.Equal(new[] { 20, 10 }, manager.GetCookingPlan());
+        Assert.True(
+            manager.RestoreLastRemovedRecipe());
+
+        Assert.Equal(
+            new[] { 20 },
+            manager.GetCookingPlan());
+
+        Assert.Equal(
+            10,
+            manager.PeekLastRemovedRecipe());
+
+        Assert.True(
+            manager.RestoreLastRemovedRecipe());
+
+        Assert.Equal(
+            new[] { 20, 10 },
+            manager.GetCookingPlan());
     }
 
     [Fact]
@@ -243,14 +299,25 @@ public sealed class RecipeManagerTests
         Assert.True(manager.StartCooking(10));
         Assert.Equal(2, manager.PendingInstructionCount);
 
-        Assert.Equal("First step", manager.PeekNextInstruction());
+        Assert.Equal(
+            "First step",
+            manager.PeekNextInstruction());
+
         Assert.Equal(2, manager.PendingInstructionCount);
 
-        Assert.Equal("First step", manager.CompleteNextInstruction());
+        Assert.Equal(
+            "First step",
+            manager.CompleteNextInstruction());
+
         Assert.Equal(1, manager.PendingInstructionCount);
 
-        Assert.Equal("Second step", manager.PeekNextInstruction());
-        Assert.Equal("Second step", manager.CompleteNextInstruction());
+        Assert.Equal(
+            "Second step",
+            manager.PeekNextInstruction());
+
+        Assert.Equal(
+            "Second step",
+            manager.CompleteNextInstruction());
 
         Assert.Equal(0, manager.PendingInstructionCount);
     }
@@ -274,7 +341,10 @@ public sealed class RecipeManagerTests
         {
             Id = 30,
             Title = "Recipe C",
-            Instructions = new() { "Only step" }
+            Instructions = new()
+            {
+                "Only step"
+            }
         });
 
         Assert.True(manager.StartCooking(10));
@@ -282,7 +352,10 @@ public sealed class RecipeManagerTests
 
         Assert.True(manager.StartCooking(30));
         Assert.Equal(1, manager.PendingInstructionCount);
-        Assert.Equal("Only step", manager.PeekNextInstruction());
+
+        Assert.Equal(
+            "Only step",
+            manager.PeekNextInstruction());
     }
 
     [Fact]
@@ -301,12 +374,18 @@ public sealed class RecipeManagerTests
         var manager = CreateManager();
 
         manager.AddIngredientsToShoppingList(10);
-        IReadOnlyList<string> snapshot = manager.GetShoppingList();
+
+        IReadOnlyList<string> snapshot =
+            manager.GetShoppingList();
 
         manager.ClearShoppingList();
 
         Assert.Equal(
-            new[] { "1 apple", "2 eggs" },
+            new[]
+            {
+                "1 apple",
+                "2 eggs"
+            },
             snapshot);
 
         Assert.Empty(manager.GetShoppingList());
@@ -318,15 +397,54 @@ public sealed class RecipeManagerTests
         var manager = CreateManager();
 
         manager.AddRecipeToCookingPlan(10);
-        IReadOnlyList<int> snapshot = manager.GetCookingPlan();
+
+        IReadOnlyList<int> snapshot =
+            manager.GetCookingPlan();
 
         manager.AddRecipeToCookingPlan(20);
 
-        Assert.Equal(new[] { 10 }, snapshot);
+        Assert.Equal(
+            new[] { 10 },
+            snapshot);
 
         Assert.Equal(
             new[] { 10, 20 },
             manager.GetCookingPlan());
+    }
+
+    [Fact]
+    public void ShoppingList_AccumulatesIngredientsInRecipeOrder()
+    {
+        var manager = CreateManager();
+
+        manager.AddRecipe(new Recipe
+        {
+            Id = 30,
+            Title = "Recipe C",
+            Ingredients = new()
+            {
+                "3 cups flour"
+            }
+        });
+
+        Assert.Equal(
+            2,
+            manager.AddIngredientsToShoppingList(10));
+
+        Assert.Equal(
+            1,
+            manager.AddIngredientsToShoppingList(30));
+
+        Assert.Equal(
+            new[]
+            {
+                "1 apple",
+                "2 eggs",
+                "3 cups flour"
+            },
+            manager.GetShoppingList());
+
+        Assert.Equal(3, manager.ShoppingItemCount);
     }
 
     private static RecipeManager CreateManager()
