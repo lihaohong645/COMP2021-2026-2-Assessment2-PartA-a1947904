@@ -47,7 +47,7 @@ This collection allows recipes to be located efficiently and prevents multiple r
 
 `List<string>` stores the shopping list.
 
-Ingredients are added in their original order. The complete shopping list can be displayed or cleared.
+Ingredients are added in their original order. Ingredients from multiple selected recipes accumulate in the same shopping list until the list is cleared.
 
 ### LinkedList
 
@@ -99,33 +99,47 @@ dotnet build
 
 ## Run the Tests
 
-Run:
+Run the following command from the repository root:
 
 ```powershell
 dotnet test
 ```
 
-The Part A test suite contains 19 tests.
+The test project contains 24 test methods.
 
-The tests cover:
+Parameterized tests execute multiple input cases, resulting in a total of 27 executed xUnit test cases.
+
+The automated tests cover:
 
 1. Constructor validation.
 2. Recipe dictionary creation.
-3. Finding recipes by ID.
-4. Adding recipes.
-5. Removing recipes.
-6. Duplicate recipe handling.
-7. Missing recipe handling.
-8. Adding ingredients to the shopping list.
-9. Clearing the shopping list.
-10. Adding recipes to the cooking plan.
-11. Removing recipes from the cooking plan.
-12. Restoring recipes using stack order.
-13. Starting a recipe.
-14. Processing instructions using queue order.
-15. Empty stack and queue behaviour.
+3. Invalid recipe identity validation.
+4. Finding recipes by ID.
+5. Adding valid recipes.
+6. Rejecting duplicate recipe IDs.
+7. Rejecting null recipes.
+8. Removing existing recipes.
+9. Handling missing recipes.
+10. Protecting recipes currently included in the cooking plan.
+11. Adding ingredients to the shopping list.
+12. Preserving ingredient order.
+13. Accumulating ingredients from multiple recipes.
+14. Clearing the shopping list.
+15. Returning independent shopping list snapshots.
+16. Adding recipes to the cooking plan.
+17. Rejecting duplicate cooking plan entries.
+18. Removing recipes from the cooking plan.
+19. Restoring recipes using Last In First Out order.
+20. Returning independent cooking plan snapshots.
+21. Starting a recipe.
+22. Processing cooking instructions using First In First Out order.
+23. Replacing an existing instruction queue when another recipe is started.
+24. Preserving the current instruction queue when starting an invalid recipe fails.
+25. Handling empty removed recipe stacks safely.
+26. Handling empty instruction queues safely.
+27. Rejecting recipes without cooking instructions.
 
-All 19 tests pass.
+All 27 executed test cases pass.
 
 ## Run the Application
 
@@ -147,15 +161,19 @@ The console application was manually tested using the supplied recipe dataset.
 
 The following behaviours were verified:
 
-1. Recipe ID 1 could be found and displayed.
+1. A recipe could be found and displayed using its ID.
 2. Recipe ingredients could be added to the shopping list.
 3. Shopping list items appeared in the correct order.
-4. Recipes could be added to the cooking plan.
-5. Recipes could be removed from the cooking plan.
-6. The most recently removed recipe could be viewed.
-7. Removed recipes could be restored in Last In First Out order.
-8. Cooking instructions appeared in their original file order.
-9. Completed cooking instructions were removed from the queue.
+4. Ingredients from multiple recipes accumulated correctly.
+5. The shopping list could be cleared.
+6. Recipes could be added to the cooking plan.
+7. Recipes could be removed from the cooking plan.
+8. The most recently removed recipe could be viewed.
+9. Removed recipes could be restored in Last In First Out order.
+10. Cooking instructions appeared in their original file order.
+11. Completed cooking instructions were removed from the queue.
+12. Empty collection operations were handled safely.
+13. Invalid recipe IDs were handled without terminating the application.
 
 ## Git Repository
 
