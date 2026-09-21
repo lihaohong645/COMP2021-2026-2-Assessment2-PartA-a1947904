@@ -84,6 +84,7 @@ public sealed class RecipeManagerTests
 
         Assert.True(manager.AddRecipe(recipe));
         Assert.Equal(3, manager.RecipeCount);
+
         Assert.Equal(
             "Recipe C",
             manager.FindRecipe(30)?.Title);
@@ -243,7 +244,11 @@ public sealed class RecipeManagerTests
             manager.RemoveRecipeFromCookingPlan(10));
 
         Assert.Equal(1, manager.RemovedRecipeCount);
-        Assert.Equal(10, manager.PeekLastRemovedRecipe());
+
+        Assert.Equal(
+            10,
+            manager.PeekLastRemovedRecipe());
+
         Assert.Empty(manager.GetCookingPlan());
     }
 
@@ -445,6 +450,23 @@ public sealed class RecipeManagerTests
             manager.GetShoppingList());
 
         Assert.Equal(3, manager.ShoppingItemCount);
+    }
+
+    [Fact]
+    public void FailedStartCooking_PreservesCurrentInstructionQueue()
+    {
+        var manager = CreateManager();
+
+        Assert.True(manager.StartCooking(10));
+        Assert.Equal(2, manager.PendingInstructionCount);
+
+        Assert.False(manager.StartCooking(999));
+
+        Assert.Equal(2, manager.PendingInstructionCount);
+
+        Assert.Equal(
+            "First step",
+            manager.PeekNextInstruction());
     }
 
     private static RecipeManager CreateManager()
