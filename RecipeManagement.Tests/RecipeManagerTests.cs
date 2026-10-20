@@ -469,6 +469,50 @@ public sealed class RecipeManagerTests
             manager.PeekNextInstruction());
     }
 
+    [Fact]
+    public void SearchByTitle_ReturnsCaseInsensitivePartialMatch()
+    {
+        var manager = CreateManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByTitle("cIpE a");
+
+        Recipe result = Assert.Single(results);
+
+        Assert.Equal(10, result.Id);
+        Assert.Equal("Recipe A", result.Title);
+    }
+
+    [Fact]
+    public void SearchByTitle_ReturnsEmptyListWhenNothingMatches()
+    {
+        var manager = CreateManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByTitle("chocolate");
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void SearchByTitle_BlankTextReturnsAllRecipes()
+    {
+        var manager = CreateManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByTitle(string.Empty);
+
+        Assert.Equal(2, results.Count);
+
+        Assert.Contains(
+            results,
+            recipe => recipe.Id == 10);
+
+        Assert.Contains(
+            results,
+            recipe => recipe.Id == 20);
+    }
+
     private static RecipeManager CreateManager()
     {
         return new RecipeManager(new[]

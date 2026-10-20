@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RecipeManagement.Core;
 
@@ -192,9 +193,17 @@ public sealed class RecipeManager : IRecipeManager
             : _pendingInstructions.Dequeue();
     }
 
-    public IReadOnlyList<Recipe> SearchByTitle(string searchText) =>
-        throw new NotImplementedException(
-            "Part B: implement SearchByTitle.");
+    public IReadOnlyList<Recipe> SearchByTitle(string searchText)
+    {
+        searchText ??= string.Empty;
+
+        return _recipes.Values
+            .Where(recipe =>
+                recipe.Title.Contains(
+                    searchText,
+                    StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
 
     public IReadOnlyList<Recipe> SearchByIngredient(string searchText) =>
         throw new NotImplementedException(
