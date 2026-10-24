@@ -5,7 +5,7 @@ using RecipeManagement.Core;
 namespace RecipeManagement.Tests;
 
 /// <summary>
-/// Unit tests for the Part A recipe management collections.
+/// Unit tests for the recipe management collections.
 /// </summary>
 public sealed class RecipeManagerTests
 {
@@ -648,6 +648,88 @@ public sealed class RecipeManagerTests
         Assert.Equal(20, results[0].Id);
         Assert.Equal(30, results[1].Id);
         Assert.Equal(10, results[2].Id);
+    }
+
+    [Fact]
+    public void AddSavedRecipe_AddsExistingRecipeAndRejectsDuplicate()
+    {
+        var manager = CreateManager();
+
+        Assert.True(manager.AddSavedRecipe(10));
+        Assert.True(manager.IsRecipeSaved(10));
+
+        Assert.False(manager.AddSavedRecipe(10));
+
+        IReadOnlyList<int> savedRecipes =
+            manager.GetSavedRecipes();
+
+        Assert.Single(savedRecipes);
+        Assert.Contains(10, savedRecipes);
+    }
+
+    [Fact]
+    public void AddSavedRecipe_RejectsMissingRecipe()
+    {
+        var manager = CreateManager();
+
+        Assert.False(manager.AddSavedRecipe(999));
+        Assert.False(manager.IsRecipeSaved(999));
+        Assert.Empty(manager.GetSavedRecipes());
+    }
+
+    [Fact]
+    public void RemoveSavedRecipe_RemovesRecipeAndHandlesMissingId()
+    {
+        var manager = CreateManager();
+
+        Assert.True(manager.AddSavedRecipe(10));
+        Assert.True(manager.IsRecipeSaved(10));
+
+        Assert.True(manager.RemoveSavedRecipe(10));
+        Assert.False(manager.IsRecipeSaved(10));
+        Assert.Empty(manager.GetSavedRecipes());
+
+        Assert.False(manager.RemoveSavedRecipe(10));
+        Assert.False(manager.RemoveSavedRecipe(999));
+    }
+
+    [Fact]
+    public void GetSavedRecipes_ReturnsIndependentSnapshot()
+    {
+        var manager = CreateManager();
+
+        Assert.True(manager.AddSavedRecipe(10));
+
+        IReadOnlyList<int> snapshot =
+            manager.GetSavedRecipes();
+
+        Assert.True(manager.AddSavedRecipe(20));
+
+        Assert.Single(snapshot);
+        Assert.Contains(10, snapshot);
+        Assert.DoesNotContain(20, snapshot);
+
+        IReadOnlyList<int> currentSavedRecipes =
+            manager.GetSavedRecipes();
+
+        Assert.Equal(2, currentSavedRecipes.Count);
+        Assert.Contains(10, currentSavedRecipes);
+        Assert.Contains(20, currentSavedRecipes);
+    }
+
+    [Fact]
+    public void RemoveRecipe_RemovesRecipeFromSavedRecipes()
+    {
+        var manager = CreateManager();
+
+        Assert.True(manager.AddSavedRecipe(20));
+        Assert.True(manager.IsRecipeSaved(20));
+
+        Assert.True(manager.RemoveRecipe(20));
+
+        Assert.False(manager.IsRecipeSaved(20));
+        Assert.Empty(manager.GetSavedRecipes());
+        Assert.Null(manager.FindRecipe(20));
     }
 
     private static RecipeManager CreateManager()
