@@ -513,6 +513,75 @@ public sealed class RecipeManagerTests
             recipe => recipe.Id == 20);
     }
 
+    [Fact]
+    public void SearchByIngredient_ReturnsCaseInsensitivePartialMatch()
+    {
+        var manager = CreateManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByIngredient("APP");
+
+        Recipe result = Assert.Single(results);
+
+        Assert.Equal(10, result.Id);
+        Assert.Equal("Recipe A", result.Title);
+    }
+
+    [Fact]
+    public void SearchByIngredient_ReturnsEmptyListWhenNothingMatches()
+    {
+        var manager = CreateManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByIngredient("chocolate");
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void SearchByIngredient_BlankTextReturnsAllRecipes()
+    {
+        var manager = CreateManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByIngredient(string.Empty);
+
+        Assert.Equal(2, results.Count);
+
+        Assert.Contains(
+            results,
+            recipe => recipe.Id == 10);
+
+        Assert.Contains(
+            results,
+            recipe => recipe.Id == 20);
+    }
+
+    [Fact]
+    public void SearchByIngredient_ReturnsRecipeOnlyOnceWhenMultipleIngredientsMatch()
+    {
+        var manager = new RecipeManager(new[]
+        {
+            new Recipe
+            {
+                Id = 30,
+                Title = "Apple Mix",
+                Ingredients = new()
+                {
+                    "1 apple",
+                    "200 ml apple juice"
+                }
+            }
+        });
+
+        IReadOnlyList<Recipe> results =
+            manager.SearchByIngredient("apple");
+
+        Recipe result = Assert.Single(results);
+
+        Assert.Equal(30, result.Id);
+    }
+
     private static RecipeManager CreateManager()
     {
         return new RecipeManager(new[]
