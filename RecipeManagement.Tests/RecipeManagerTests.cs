@@ -582,6 +582,74 @@ public sealed class RecipeManagerTests
         Assert.Equal(30, result.Id);
     }
 
+    [Fact]
+    public void GetHighestProteinRecipes_ReturnsRequestedRecipesInDescendingOrder()
+    {
+        var manager = CreateProteinManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.GetHighestProteinRecipes(2);
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal(20, results[0].Id);
+        Assert.Equal(30, results[1].Id);
+
+        Assert.Equal(
+            35.0,
+            results[0].Nutrition?.ProteinG);
+
+        Assert.Equal(
+            20.0,
+            results[1].Nutrition?.ProteinG);
+    }
+
+    [Fact]
+    public void GetHighestProteinRecipes_ExcludesRecipesWithoutProteinValues()
+    {
+        var manager = CreateProteinManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.GetHighestProteinRecipes(10);
+
+        Assert.Equal(3, results.Count);
+
+        Assert.DoesNotContain(
+            results,
+            recipe => recipe.Id == 40);
+
+        Assert.DoesNotContain(
+            results,
+            recipe => recipe.Id == 50);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void GetHighestProteinRecipes_NonPositiveCountReturnsEmptyList(
+        int count)
+    {
+        var manager = CreateProteinManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.GetHighestProteinRecipes(count);
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void GetHighestProteinRecipes_CountLargerThanAvailableReturnsAllValidRecipes()
+    {
+        var manager = CreateProteinManager();
+
+        IReadOnlyList<Recipe> results =
+            manager.GetHighestProteinRecipes(20);
+
+        Assert.Equal(3, results.Count);
+        Assert.Equal(20, results[0].Id);
+        Assert.Equal(30, results[1].Id);
+        Assert.Equal(10, results[2].Id);
+    }
+
     private static RecipeManager CreateManager()
     {
         return new RecipeManager(new[]
@@ -605,6 +673,55 @@ public sealed class RecipeManagerTests
             {
                 Id = 20,
                 Title = "Recipe B"
+            }
+        });
+    }
+
+    private static RecipeManager CreateProteinManager()
+    {
+        return new RecipeManager(new[]
+        {
+            new Recipe
+            {
+                Id = 10,
+                Title = "Low Protein Recipe",
+                Nutrition = new NutritionInfo
+                {
+                    ProteinG = 12.5
+                }
+            },
+            new Recipe
+            {
+                Id = 20,
+                Title = "High Protein Recipe",
+                Nutrition = new NutritionInfo
+                {
+                    ProteinG = 35.0
+                }
+            },
+            new Recipe
+            {
+                Id = 30,
+                Title = "Medium Protein Recipe",
+                Nutrition = new NutritionInfo
+                {
+                    ProteinG = 20.0
+                }
+            },
+            new Recipe
+            {
+                Id = 40,
+                Title = "Missing Nutrition Recipe",
+                Nutrition = null
+            },
+            new Recipe
+            {
+                Id = 50,
+                Title = "Missing Protein Recipe",
+                Nutrition = new NutritionInfo
+                {
+                    ProteinG = null
+                }
             }
         });
     }
